@@ -1,202 +1,177 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2575.7">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Play Area — Flappy Placeholder</title>
+
+  <style>
+    html,body{
+      height:100%;margin:0;
+      background:#0c0c0f;color:#f2f2f2;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto;
+    }
+    .wrap{
+      position:fixed;inset:0;
+      display:grid;place-items:center;
+      padding:16px;
+    }
+    canvas{
+      display:block;
+      width:min(100vw,380px);
+      height:auto;
+      aspect-ratio:9/16;
+      border-radius:16px;
+      background:#0a0d13;
+      box-shadow:0 12px 40px rgba(0,0,0,.5);
+    }
+    .badge{
+      position:fixed;left:12px;bottom:12px;
+      font-size:12px;opacity:.6;
+    }
   </style>
 </head>
 <body>
-<p class="p1">&lt;!doctype html&gt;</p>
-<p class="p1">&lt;html lang="en"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta charset="utf-8" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;title&gt;Play Area — Flappy Placeholder&lt;/title&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;style&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>html,body{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>height:100%;margin:0;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background:#0c0c0f;color:#f2f2f2;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-family:system-ui,-apple-system,Segoe UI,Roboto;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.wrap{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>position:fixed;inset:0;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display:grid;place-items:center;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding:16px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>canvas{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display:block;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>width:min(100vw,380px);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>height:auto;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>aspect-ratio:9/16;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius:16px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background:#0a0d13;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>box-shadow:0 12px 40px rgba(0,0,0,.5);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.badge{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>position:fixed;left:12px;bottom:12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size:12px;opacity:.6;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;div class="wrap"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;canvas id="game" width="360" height="640"&gt;&lt;/canvas&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="badge"&gt;Play Area — Playing &gt; Posting&lt;/div&gt;</p>
-<p class="p1">&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;script&gt;</p>
-<p class="p1">// ====================================================================</p>
-<p class="p1">// SUPER SIMPLE FLAPPY GAME — guaranteed to work everywhere</p>
-<p class="p1">// ====================================================================</p>
-<p class="p1">(function(){</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const c = document.getElementById("game");</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const x = c.getContext("2d");</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>const W = c.width;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const H = c.height;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>// game variables</p>
-<p class="p1"><span class="Apple-converted-space">  </span>let started=false, over=false, score=0, best=0;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>let last=0, spawn=0;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>const bird={x:100,y:H/2,r:10,vy:0};</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const pipes=[];</p>
-<p class="p2"><span class="Apple-converted-space">  </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>const G=900;<span class="Apple-converted-space">      </span>// gravity</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const FLAP=-280;<span class="Apple-converted-space">  </span>// jump force</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const SPEED=120;<span class="Apple-converted-space">  </span>// pipe speed</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const GAP=150;<span class="Apple-converted-space">    </span>// gap</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const PIPE_W=50; <span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">  </span>const FLOOR=80;<span class="Apple-converted-space">   </span></p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>function reset(){</p>
-<p class="p1"><span class="Apple-converted-space">    </span>started=false;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>over=false;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>score=0;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>bird.x=100; bird.y=H/2; bird.vy=0;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>pipes.length=0;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>last=performance.now();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>draw(0);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>function flap(){</p>
-<p class="p1"><span class="Apple-converted-space">    </span>if(over){ reset(); return; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>started=true;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>bird.vy=FLAP;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>c.addEventListener("pointerdown", flap);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>window.addEventListener("keydown", e=&gt;{</p>
-<p class="p1"><span class="Apple-converted-space">    </span>if(e.code==="Space"||e.code==="ArrowUp"){</p>
-<p class="p1"><span class="Apple-converted-space">      </span>e.preventDefault(); flap();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>function addPipe(){</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const topH = 40 + Math.random()*(H - FLOOR - GAP - 80);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>pipes.push({x:W+PIPE_W, topH, passed:false});</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>function update(dt){</p>
-<p class="p1"><span class="Apple-converted-space">    </span>if(!started || over) return;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>bird.vy += G*dt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>bird.y<span class="Apple-converted-space">  </span>+= bird.vy*dt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>spawn+=dt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>if(spawn&gt;1.2){ spawn=0; addPipe(); }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>for(const p of pipes){</p>
-<p class="p1"><span class="Apple-converted-space">      </span>p.x -= SPEED*dt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if(!p.passed &amp;&amp; p.x+PIPE_W &lt; bird.x-bird.r){</p>
-<p class="p1"><span class="Apple-converted-space">        </span>p.passed=true;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>score++;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>best=Math.max(best,score);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>while(pipes.length &amp;&amp; pipes[0].x &lt; -PIPE_W-10) pipes.shift();</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>const ground=H-FLOOR;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>if(bird.y-bird.r&lt;0 || bird.y+bird.r&gt;ground) over=true;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>for(const p of pipes){</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if(bird.x+bird.r&gt;p.x &amp;&amp; bird.x-bird.r&lt;p.x+PIPE_W){</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if(bird.y-bird.r&lt;p.topH || bird.y+bird.r&gt;p.topH+GAP){</p>
-<p class="p1"><span class="Apple-converted-space">          </span>over=true;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>function draw(){</p>
-<p class="p1"><span class="Apple-converted-space">    </span>// background</p>
-<p class="p1"><span class="Apple-converted-space">    </span>x.fillStyle="#0a0d13";</p>
-<p class="p1"><span class="Apple-converted-space">    </span>x.fillRect(0,0,W,H);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// pipes</p>
-<p class="p1"><span class="Apple-converted-space">    </span>x.fillStyle="#61ffa8";</p>
-<p class="p1"><span class="Apple-converted-space">    </span>for(const p of pipes){</p>
-<p class="p1"><span class="Apple-converted-space">      </span>x.fillRect(p.x, 0, PIPE_W, p.topH);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>x.fillRect(p.x, p.topH+GAP, PIPE_W, H);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// ground</p>
-<p class="p1"><span class="Apple-converted-space">    </span>x.fillStyle="#0c1018";</p>
-<p class="p1"><span class="Apple-converted-space">    </span>x.fillRect(0,H-FLOOR,W,FLOOR);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// bird</p>
-<p class="p1"><span class="Apple-converted-space">    </span>x.fillStyle="#ffd166";</p>
-<p class="p1"><span class="Apple-converted-space">    </span>x.beginPath();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>x.arc(bird.x,bird.y,bird.r,0,Math.PI*2);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>x.fill();</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// score</p>
-<p class="p1"><span class="Apple-converted-space">    </span>x.fillStyle="#fff";</p>
-<p class="p1"><span class="Apple-converted-space">    </span>x.font="32px system-ui";</p>
-<p class="p1"><span class="Apple-converted-space">    </span>x.fillText(score,16,40);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// messages</p>
-<p class="p1"><span class="Apple-converted-space">    </span>if(!started &amp;&amp; !over){</p>
-<p class="p1"><span class="Apple-converted-space">      </span>x.font="24px system-ui";</p>
-<p class="p1"><span class="Apple-converted-space">      </span>x.textAlign="center";</p>
-<p class="p1"><span class="Apple-converted-space">      </span>x.fillText("Playing &gt; Posting", W/2, H*0.4);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>x.font="16px system-ui";</p>
-<p class="p1"><span class="Apple-converted-space">      </span>x.fillText("Tap / Space to play", W/2, H*0.47);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>if(over){</p>
-<p class="p1"><span class="Apple-converted-space">      </span>x.textAlign="center";</p>
-<p class="p1"><span class="Apple-converted-space">      </span>x.font="26px system-ui";</p>
-<p class="p1"><span class="Apple-converted-space">      </span>x.fillStyle="#fff";</p>
-<p class="p1"><span class="Apple-converted-space">      </span>x.fillText("Game Over", W/2, H*0.38);<span class="Apple-converted-space">     </span></p>
-<p class="p1"><span class="Apple-converted-space">      </span>x.font="16px system-ui";</p>
-<p class="p1"><span class="Apple-converted-space">      </span>x.fillText("Tap / Space to restart", W/2, H*0.45);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>function loop(t){</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const dt = Math.min(0.03, (t-last)/1000);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>last = t;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>update(dt);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>draw();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>requestAnimationFrame(loop);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>reset();</p>
-<p class="p1"><span class="Apple-converted-space">  </span>requestAnimationFrame(loop);</p>
-<p class="p1">})();</p>
-<p class="p1">&lt;/script&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+
+<div class="wrap">
+  <canvas id="game" width="360" height="640"></canvas>
+  <div class="badge">Play Area — Playing > Posting</div>
+</div>
+
+<script>
+// SUPER SIMPLE FLAPPY GAME
+(function(){
+  const c = document.getElementById("game");
+  const x = c.getContext("2d");
+
+  const W = c.width;
+  const H = c.height;
+
+  let started=false, over=false, score=0, best=0;
+  let last=0, spawn=0;
+
+  const bird={x:100,y:H/2,r:10,vy:0};
+  const pipes=[];
+  
+  const G=900;
+  const FLAP=-280;
+  const SPEED=120;
+  const GAP=150;
+  const PIPE_W=50;
+  const FLOOR=80;
+
+  function reset(){
+    started=false;
+    over=false;
+    score=0;
+    bird.x=100; bird.y=H/2; bird.vy=0;
+    pipes.length=0;
+    last=performance.now();
+    draw(0);
+  }
+
+  function flap(){
+    if(over){ reset(); return; }
+    started=true;
+    bird.vy=FLAP;
+  }
+
+  c.addEventListener("pointerdown", flap);
+  window.addEventListener("keydown", e=>{
+    if(e.code==="Space"||e.code==="ArrowUp"){
+      e.preventDefault(); flap();
+    }
+  });
+
+  function addPipe(){
+    const topH = 40 + Math.random()*(H - FLOOR - GAP - 80);
+    pipes.push({x:W+PIPE_W, topH, passed:false});
+  }
+
+  function update(dt){
+    if(!started || over) return;
+
+    bird.vy += G*dt;
+    bird.y  += bird.vy*dt;
+
+    spawn+=dt;
+    if(spawn>1.2){ spawn=0; addPipe(); }
+
+    for(const p of pipes){
+      p.x -= SPEED*dt;
+      if(!p.passed && p.x+PIPE_W < bird.x-bird.r){
+        p.passed=true;
+        score++;
+        best=Math.max(best,score);
+      }
+    }
+
+    while(pipes.length && pipes[0].x < -PIPE_W-10) pipes.shift();
+
+    const ground=H-FLOOR;
+    if(bird.y-bird.r<0 || bird.y+bird.r>ground) over=true;
+
+    for(const p of pipes){
+      if(bird.x+bird.r>p.x && bird.x-bird.r<p.x+PIPE_W){
+        if(bird.y-bird.r<p.topH || bird.y+bird.r>p.topH+GAP){
+          over=true;
+        }
+      }
+    }
+  }
+
+  function draw(){
+    x.fillStyle="#0a0d13";
+    x.fillRect(0,0,W,H);
+
+    x.fillStyle="#61ffa8";
+    for(const p of pipes){
+      x.fillRect(p.x, 0, PIPE_W, p.topH);
+      x.fillRect(p.x, p.topH+GAP, PIPE_W, H);
+    }
+
+    x.fillStyle="#0c1018";
+    x.fillRect(0,H-FLOOR,W,FLOOR);
+
+    x.fillStyle="#ffd166";
+    x.beginPath();
+    x.arc(bird.x,bird.y,bird.r,0,Math.PI*2);
+    x.fill();
+
+    x.fillStyle="#fff";
+    x.font="32px system-ui";
+    x.fillText(score,16,40);
+
+    if(!started && !over){
+      x.font="24px system-ui";
+      x.textAlign="center";
+      x.fillText("Playing > Posting", W/2, H*0.4);
+      x.font="16px system-ui";
+      x.fillText("Tap / Space to play", W/2, H*0.47);
+    }
+
+    if(over){
+      x.textAlign="center";
+      x.font="26px system-ui";
+      x.fillStyle="#fff";
+      x.fillText("Game Over", W/2, H*0.38);
+      x.font="16px system-ui";
+      x.fillText("Tap / Space to restart", W/2, H*0.45);
+    }
+  }
+
+  function loop(t){
+    const dt = Math.min(0.03, (t-last)/1000);
+    last = t;
+    update(dt);
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  reset();
+  requestAnimationFrame(loop);
+})();
+</script>
+
 </body>
 </html>
