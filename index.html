@@ -13,11 +13,13 @@
       overflow: hidden;
       font-family: system-ui, -apple-system, Segoe UI, Roboto;
     }
-    canvas {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
+    body {
+      display: flex;
+    }
+    #game {
+      flex: 1;
+      width: 100%;
+      height: 100%;
       display: block;
     }
     .badge {
@@ -27,23 +29,26 @@
       font-size: 12px;
       opacity: .6;
       color: #fff;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
 
 <canvas id="game"></canvas>
-<div class="badge">Play Area &gt;</div>
+<div class="badge">Play Area — Playing &gt; Posting</div>
 
 <script>
-// FULLSCREEN FLAPPY — neon pink pipes + smiley
-(function() {
+// FRAME-FRIENDLY FLAPPY — neon pink pipes + reference-style smiley face
+(function () {
   const c = document.getElementById("game");
   const x = c.getContext("2d");
 
+  // Resize canvas to fill its parent (works nicely inside Framer iframe)
   function resize() {
-    c.width = window.innerWidth;
-    c.height = window.innerHeight;
+    const rect = c.getBoundingClientRect();
+    c.width = rect.width || window.innerWidth;
+    c.height = rect.height || window.innerHeight;
   }
   window.addEventListener("resize", resize);
   resize();
@@ -54,14 +59,15 @@
   let started = false, over = false, score = 0, best = 0;
   let last = performance.now(), spawn = 0;
 
-  const bird = { x: 0, y: 0, r: 14, vy: 0 };
+  const bird = { x: 0, y: 0, r: 18, vy: 0 };
   const pipes = [];
 
-  const G       = 950;   // gravity
-  const FLAP    = -320;  // flap impulse
-  const SPEED   = 230;   // pipe speed (px/sec)
-  const PIPE_W  = 90;    // pipe width
-  const GAP_MAX = 240;   // max gap size
+  // Tuned constants
+  const G      = 950;    // gravity
+  const FLAP   = -320;   // flap impulse
+  const SPEED  = 220;    // pipe speed (px/sec)
+  const PIPE_W = 90;     // pipe width
+  const GAP    = 220;    // fixed gap so iframe height doesn't kill it
 
   function reset() {
     started = false;
@@ -85,7 +91,7 @@
   }
 
   c.addEventListener("pointerdown", flap);
-  window.addEventListener("keydown", e => {
+  window.addEventListener("keydown", (e) => {
     if (e.code === "Space" || e.code === "ArrowUp") {
       e.preventDefault();
       flap();
@@ -94,22 +100,20 @@
 
   function addPipe() {
     const h = H();
-    // Gap size independent of weird iframe heights – always playable
-    const gap = Math.min(GAP_MAX, h * 0.6);
-    const minTop = 50;
-    const maxTop = Math.max(minTop, h - gap - 100);
+    const minTop = 40;
+    const maxTop = Math.max(minTop, h - GAP - 80);
     const topH = minTop + Math.random() * (maxTop - minTop);
-    pipes.push({ x: W() + PIPE_W, topH, gap, passed: false });
+    pipes.push({ x: W() + PIPE_W, topH, passed: false });
   }
 
   function update(dt) {
     if (!started || over) return;
 
     bird.vy += G * dt;
-    bird.y  += bird.vy * dt;
+    bird.y += bird.vy * dt;
 
     spawn += dt;
-    if (spawn > 1.3) {
+    if (spawn > 1.35) {
       spawn = 0;
       addPipe();
     }
@@ -128,7 +132,7 @@
       pipes.shift();
     }
 
-    // top / bottom collisions
+    // top / bottom collision
     if (bird.y - bird.r < 0 || bird.y + bird.r > H()) {
       over = true;
     }
@@ -136,59 +140,73 @@
     // pipe collisions
     for (const p of pipes) {
       if (bird.x + bird.r > p.x && bird.x - bird.r < p.x + PIPE_W) {
-        if (bird.y - bird.r < p.topH || bird.y + bird.r > p.topH + p.gap) {
+        if (bird.y - bird.r < p.topH || bird.y + bird.r > p.topH + GAP) {
           over = true;
         }
       }
     }
   }
 
+  // draw the reference-style smiley face
   function drawSmiley() {
     const r = bird.r;
+
     x.save();
     x.translate(bird.x, bird.y);
 
-    // body
-    x.fillStyle = "#ff66c4"; // pink
+    // FACE FILL (light green)
     x.beginPath();
+    x.fillStyle = "#E8FFC2";
     x.arc(0, 0, r, 0, Math.PI * 2);
     x.fill();
 
-    // eyes
-    x.fillStyle = "#fff";
-    x.beginPath(); x.arc(-r * 0.4, -r * 0.3, r * 0.18, 0, Math.PI * 2); x.fill();
-    x.beginPath(); x.arc( r * 0.4, -r * 0.3, r * 0.18, 0, Math.PI * 2); x.fill();
-
-    x.fillStyle = "#222";
-    x.beginPath(); x.arc(-r * 0.4, -r * 0.3, r * 0.09, 0, Math.PI * 2); x.fill();
-    x.beginPath(); x.arc( r * 0.4, -r * 0.3, r * 0.09, 0, Math.PI * 2); x.fill();
-
-    // smile
-    x.strokeStyle = "#222";
-    x.lineWidth = 2;
-    x.beginPath();
-    x.arc(0, r * 0.2, r * 0.55, 0.15 * Math.PI, 0.85 * Math.PI);
+    // OUTLINE (thick pink ring)
+    x.strokeStyle = "#FF00AD";
+    x.lineWidth = r * 0.35;
     x.stroke();
+
+    // EYES (pink dots)
+    x.fillStyle = "#FF00AD";
+    const eyeR = r * 0.18;
+    const eyeOffsetX = r * 0.32;
+    const eyeOffsetY = r * 0.28;
+
+    x.beginPath();
+    x.arc(-eyeOffsetX, -eyeOffsetY, eyeR, 0, Math.PI * 2);
+    x.fill();
+
+    x.beginPath();
+    x.arc(eyeOffsetX, -eyeOffsetY, eyeR, 0, Math.PI * 2);
+    x.fill();
+
+    // MOUTH (wide pink half-circle)
+    const mouthR = r * 0.55;
+    const mouthY = r * 0.15;
+
+    x.beginPath();
+    x.fillStyle = "#FF00AD";
+    x.arc(0, mouthY, mouthR, 0, Math.PI, false);
+    x.fill();
 
     x.restore();
   }
 
   function draw() {
-    // background
+    // background gradient
     const grad = x.createLinearGradient(0, 0, 0, H());
     grad.addColorStop(0, "#050515");
     grad.addColorStop(1, "#05050a");
     x.fillStyle = grad;
     x.fillRect(0, 0, W(), H());
 
-    // pipes – neon pink
-    x.fillStyle = "#ff2fbf";
+    // pipes: neon pink
+    x.fillStyle = "#FF00AD";
     for (const p of pipes) {
       x.fillRect(p.x, 0, PIPE_W, p.topH);
-      x.fillRect(p.x, p.topH + p.gap, PIPE_W, H());
+      x.fillRect(p.x, p.topH + GAP, PIPE_W, H());
     }
 
-    // smiley
+    // smiley bird
     drawSmiley();
 
     // score
