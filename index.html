@@ -1,47 +1,47 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Play Area — Flappy Placeholder</title>
-<style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    background: #0c0c0f;
-    overflow: hidden;
-    font-family: system-ui, -apple-system, Segoe UI, Roboto;
-  }
-  canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-  }
-  .badge {
-    position: fixed;
-    left: 16px;
-    bottom: 16px;
-    font-size: 12px;
-    opacity: .6;
-    color: #fff;
-  }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Play Area — Flappy Placeholder</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #050509;
+      overflow: hidden;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto;
+    }
+    canvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      display: block;
+    }
+    .badge {
+      position: fixed;
+      left: 16px;
+      bottom: 16px;
+      font-size: 12px;
+      opacity: .6;
+      color: #fff;
+    }
+  </style>
 </head>
 <body>
 
 <canvas id="game"></canvas>
-<div class="badge">Play Area — Playing > Posting</div>
+<div class="badge">Play Area &gt;</div>
 
 <script>
-// FULLSCREEN SIMPLE FLAPPY GAME
-(function(){
+// FULLSCREEN FLAPPY — neon pink pipes + smiley
+(function() {
   const c = document.getElementById("game");
   const x = c.getContext("2d");
 
-  function resize(){
+  function resize() {
     c.width = window.innerWidth;
     c.height = window.innerHeight;
   }
@@ -51,117 +51,170 @@
   const W = () => c.width;
   const H = () => c.height;
 
-  let started=false, over=false, score=0, best=0;
-  let last=0, spawn=0;
+  let started = false, over = false, score = 0, best = 0;
+  let last = performance.now(), spawn = 0;
 
-  const bird={x:100,y:0,r:12,vy:0};
-  const pipes=[];
+  const bird = { x: 0, y: 0, r: 14, vy: 0 };
+  const pipes = [];
 
-  const G=900;
-  const FLAP=-300;
-  const SPEED=200;
-  const GAP=H()*0.28;
-  const PIPE_W=80;
+  const G       = 950;   // gravity
+  const FLAP    = -320;  // flap impulse
+  const SPEED   = 230;   // pipe speed (px/sec)
+  const PIPE_W  = 90;    // pipe width
+  const GAP_MAX = 240;   // max gap size
 
-  function reset(){
-    started=false;
-    over=false;
-    score=0;
-    bird.x=W()*0.28;
-    bird.y=H()/2;
-    bird.vy=0;
-    pipes.length=0;
-    last=performance.now();
-    spawn=0;
+  function reset() {
+    started = false;
+    over = false;
+    score = 0;
+    bird.x = W() * 0.28;
+    bird.y = H() * 0.5;
+    bird.vy = 0;
+    pipes.length = 0;
+    spawn = 0;
+    last = performance.now();
   }
 
-  function flap(){
-    if(over){ reset(); return; }
-    started=true;
-    bird.vy=FLAP;
+  function flap() {
+    if (over) {
+      reset();
+      return;
+    }
+    started = true;
+    bird.vy = FLAP;
   }
 
   c.addEventListener("pointerdown", flap);
-  window.addEventListener("keydown", e=>{
-    if(e.code==="Space"||e.code==="ArrowUp"){
-      e.preventDefault(); flap();
+  window.addEventListener("keydown", e => {
+    if (e.code === "Space" || e.code === "ArrowUp") {
+      e.preventDefault();
+      flap();
     }
   });
 
-  function addPipe(){
-    const topH = 50 + Math.random()*(H() - GAP - 100);
-    pipes.push({x:W()+PIPE_W, topH, passed:false});
+  function addPipe() {
+    const h = H();
+    // Gap size independent of weird iframe heights – always playable
+    const gap = Math.min(GAP_MAX, h * 0.6);
+    const minTop = 50;
+    const maxTop = Math.max(minTop, h - gap - 100);
+    const topH = minTop + Math.random() * (maxTop - minTop);
+    pipes.push({ x: W() + PIPE_W, topH, gap, passed: false });
   }
 
-  function update(dt){
-    if(!started || over) return;
+  function update(dt) {
+    if (!started || over) return;
 
-    bird.vy += G*dt;
-    bird.y  += bird.vy*dt;
+    bird.vy += G * dt;
+    bird.y  += bird.vy * dt;
 
-    spawn+=dt;
-    if(spawn>1.3){ spawn=0; addPipe(); }
+    spawn += dt;
+    if (spawn > 1.3) {
+      spawn = 0;
+      addPipe();
+    }
 
-    for(const p of pipes){
-      p.x -= SPEED*dt;
-      if(!p.passed && p.x+PIPE_W < bird.x-bird.r){
-        p.passed=true;
+    const move = SPEED * dt;
+    for (const p of pipes) {
+      p.x -= move;
+      if (!p.passed && p.x + PIPE_W < bird.x - bird.r) {
+        p.passed = true;
         score++;
-        best=Math.max(best,score);
+        best = Math.max(best, score);
       }
     }
 
-    while(pipes.length && pipes[0].x < -PIPE_W) pipes.shift();
+    while (pipes.length && pipes[0].x < -PIPE_W - 10) {
+      pipes.shift();
+    }
 
-    if(bird.y-bird.r < 0 || bird.y+bird.r > H()) over = true;
+    // top / bottom collisions
+    if (bird.y - bird.r < 0 || bird.y + bird.r > H()) {
+      over = true;
+    }
 
-    for(const p of pipes){
-      if(bird.x+bird.r > p.x && bird.x-bird.r < p.x+PIPE_W){
-        if(bird.y-bird.r < p.topH || bird.y+bird.r > p.topH+GAP){
-          over=true;
+    // pipe collisions
+    for (const p of pipes) {
+      if (bird.x + bird.r > p.x && bird.x - bird.r < p.x + PIPE_W) {
+        if (bird.y - bird.r < p.topH || bird.y + bird.r > p.topH + p.gap) {
+          over = true;
         }
       }
     }
   }
 
-  function draw(){
-    x.fillStyle="#0a0d13";
-    x.fillRect(0,0,W(),H());
+  function drawSmiley() {
+    const r = bird.r;
+    x.save();
+    x.translate(bird.x, bird.y);
 
-    x.fillStyle="#61ffa8";
-    for(const p of pipes){
-      x.fillRect(p.x,0,PIPE_W,p.topH);
-      x.fillRect(p.x,p.topH+GAP,PIPE_W,H());
-    }
-
-    x.fillStyle="#ffd166";
+    // body
+    x.fillStyle = "#ff66c4"; // pink
     x.beginPath();
-    x.arc(bird.x,bird.y,bird.r,0,Math.PI*2);
+    x.arc(0, 0, r, 0, Math.PI * 2);
     x.fill();
 
-    x.fillStyle="#fff";
-    x.font="bold 32px system-ui";
-    x.fillText(score,20,40);
+    // eyes
+    x.fillStyle = "#fff";
+    x.beginPath(); x.arc(-r * 0.4, -r * 0.3, r * 0.18, 0, Math.PI * 2); x.fill();
+    x.beginPath(); x.arc( r * 0.4, -r * 0.3, r * 0.18, 0, Math.PI * 2); x.fill();
 
-    x.textAlign="center";
+    x.fillStyle = "#222";
+    x.beginPath(); x.arc(-r * 0.4, -r * 0.3, r * 0.09, 0, Math.PI * 2); x.fill();
+    x.beginPath(); x.arc( r * 0.4, -r * 0.3, r * 0.09, 0, Math.PI * 2); x.fill();
 
-    if(!started && !over){
-      x.font="28px system-ui";
-      x.fillText("Playing > Posting", W()/2, H()*0.45);
-      x.font="18px system-ui";
-      x.fillText("Tap / Space to start", W()/2, H()*0.52);
+    // smile
+    x.strokeStyle = "#222";
+    x.lineWidth = 2;
+    x.beginPath();
+    x.arc(0, r * 0.2, r * 0.55, 0.15 * Math.PI, 0.85 * Math.PI);
+    x.stroke();
+
+    x.restore();
+  }
+
+  function draw() {
+    // background
+    const grad = x.createLinearGradient(0, 0, 0, H());
+    grad.addColorStop(0, "#050515");
+    grad.addColorStop(1, "#05050a");
+    x.fillStyle = grad;
+    x.fillRect(0, 0, W(), H());
+
+    // pipes – neon pink
+    x.fillStyle = "#ff2fbf";
+    for (const p of pipes) {
+      x.fillRect(p.x, 0, PIPE_W, p.topH);
+      x.fillRect(p.x, p.topH + p.gap, PIPE_W, H());
     }
 
-    if(over){
-      x.font="32px system-ui";
-      x.fillText("Game Over", W()/2, H()*0.45);
-      x.font="18px system-ui";
-      x.fillText("Tap / Space to restart", W()/2, H()*0.52);
+    // smiley
+    drawSmiley();
+
+    // score
+    x.fillStyle = "#ffffff";
+    x.font = "bold 32px system-ui";
+    x.textAlign = "left";
+    x.fillText(score, 20, 40);
+
+    // messages
+    x.textAlign = "center";
+    if (!started && !over) {
+      x.font = "28px system-ui";
+      x.fillText("Playing > Posting", W() / 2, H() * 0.45);
+      x.font = "18px system-ui";
+      x.fillText("Tap / Space to start", W() / 2, H() * 0.52);
+    }
+    if (over) {
+      x.font = "32px system-ui";
+      x.fillText("Game Over", W() / 2, H() * 0.45);
+      x.font = "18px system-ui";
+      x.fillText("Tap / Space to restart", W() / 2, H() * 0.52);
     }
   }
 
-  function loop(t){
-    const dt = Math.min(0.03, (t-last)/1000);
+  function loop(t) {
+    const dt = Math.min(0.03, (t - last) / 1000);
     last = t;
     update(dt);
     draw();
